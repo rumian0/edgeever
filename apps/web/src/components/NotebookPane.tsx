@@ -14,9 +14,17 @@ import {
   AlertTriangle,
   RefreshCw,
   CheckCircle2,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { NotebookTreeItem } from "./NotebookTreeItem";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -365,7 +373,6 @@ export const NotebookPane = ({
             label="回收站"
             onClick={onOpenTrash}
           />
-          <SidebarNavButton icon={<KeyRound className="h-4 w-4" />} label="MCP Token" onClick={onOpenSettings} />
         </nav>
       </div>
 
@@ -376,20 +383,59 @@ export const NotebookPane = ({
           isSyncing={isSyncingQueuedChanges}
           onSyncNow={onSyncQueuedChanges}
         />
-        <label className="mb-3 flex min-h-10 items-center justify-between gap-3 rounded-md border border-slate-200 bg-white px-3 py-2 cursor-pointer hover:bg-slate-50/50 transition duration-200">
-          <span className="min-w-0 text-sm font-medium text-slate-700 select-none">是否压缩笔记内图片</span>
-          <Switch
-            checked={imageCompressionEnabled}
-            onCheckedChange={onImageCompressionChange}
-            aria-label="是否压缩笔记内图片"
-          />
-        </label>
-        {authRequired && (
-          <Button className="w-full justify-center" size="md" variant="ghost" onClick={onLogout} disabled={isLoggingOut}>
-            <LogOut className="h-4 w-4" />
-            退出登录
-          </Button>
-        )}
+        <div className="mt-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex w-full items-center gap-3 rounded-lg border border-slate-200 bg-white p-2 text-left hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/70">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#809f75] to-[#526d49] text-sm font-semibold text-white uppercase shadow-[0_2px_8px_rgba(98,127,88,0.15)]">
+                  {user?.username?.charAt(0) ?? "L"}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-semibold text-slate-800 leading-tight">{user?.username ?? "本地用户"}</div>
+                  <div className="truncate text-[10px] font-medium text-slate-400 uppercase tracking-wider mt-0.5">{isOnline ? "在线" : "离线"}</div>
+                </div>
+                <Settings className="h-4 w-4 shrink-0 text-slate-400" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 bg-white border border-slate-200 rounded-md py-1 shadow-md" align="start" side="top" sideOffset={8}>
+              <div className="px-3 py-2 border-b border-slate-100 mb-1">
+                <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">个人中心</div>
+                <div className="text-sm font-semibold text-slate-900 truncate mt-0.5">{user?.username ?? "本地用户"}</div>
+              </div>
+              <DropdownMenuItem
+                className="flex items-center justify-between px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer outline-none"
+                onSelect={(event) => event.preventDefault()}
+              >
+                <span className="select-none font-medium">压缩笔记内图片</span>
+                <Switch
+                  checked={imageCompressionEnabled}
+                  onCheckedChange={onImageCompressionChange}
+                  aria-label="是否压缩笔记内图片"
+                />
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer outline-none"
+                onClick={onOpenSettings}
+              >
+                <KeyRound className="h-4 w-4 text-slate-500" />
+                <span className="font-medium">MCP / API 设置</span>
+              </DropdownMenuItem>
+              {authRequired && (
+                <>
+                  <DropdownMenuSeparator className="my-1 border-t border-slate-100" />
+                  <DropdownMenuItem
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 hover:text-rose-700 cursor-pointer outline-none"
+                    disabled={isLoggingOut}
+                    onClick={onLogout}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span className="font-medium">{isLoggingOut ? "退出中..." : "退出登录"}</span>
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </footer>
     </div>
   );
