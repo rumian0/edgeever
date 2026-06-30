@@ -1,10 +1,25 @@
 import react from "@vitejs/plugin-react";
+import { execSync } from "node:child_process";
 import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
+const readGitCommit = () => {
+  try {
+    return execSync("git rev-parse --short=12 HEAD", { encoding: "utf8" }).trim();
+  } catch {
+    return null;
+  }
+};
+
+const buildId = process.env.CF_PAGES_COMMIT_SHA?.slice(0, 12) ?? process.env.GITHUB_SHA?.slice(0, 12) ?? readGitCommit() ?? "local";
+
 export default defineConfig({
   root: "apps/web",
+  define: {
+    __EDGEEVER_BUILD_ID__: JSON.stringify(buildId),
+    __EDGEEVER_BUILD_LABEL__: JSON.stringify(buildId === "local" ? "local" : buildId.slice(0, 7)),
+  },
   plugins: [
     react(),
     VitePWA({

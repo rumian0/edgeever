@@ -14,7 +14,7 @@ let updateServiceWorker: ReturnType<typeof registerSW>;
 updateServiceWorker = registerSW({
   immediate: true,
   onNeedRefresh() {
-    emitPwaUpdateNotice({ kind: "checking" });
+    emitPwaUpdateNotice({ buildLabel: __EDGEEVER_BUILD_LABEL__, kind: "checking" });
     void updateServiceWorker(true);
   },
   onNeedReload() {

@@ -3,6 +3,7 @@ import { CheckCircle2, RefreshCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
+  consumePwaBuildUpdate,
   consumePwaUpdateReloadPending,
   PWA_UPDATE_NOTICE_EVENT,
   type PwaUpdateNoticeEvent,
@@ -10,6 +11,7 @@ import {
 } from "@/lib/pwa-update-notice";
 
 type Notice = {
+  buildLabel?: string;
   id: number;
   kind: PwaUpdateNoticeKind;
 };
@@ -63,6 +65,14 @@ const noticeCopy: Record<PwaUpdateNoticeKind, { title: string; description: stri
   },
 };
 
+const getNoticeDescription = (notice: Notice, fallbackDescription: string) => {
+  if (notice.kind === "updated" && notice.buildLabel) {
+    return `当前 PWA 已是最新版本（${notice.buildLabel}）。`;
+  }
+
+  return fallbackDescription;
+};
+
 export const PwaUpdateNotice = () => {
   const [displayMode, setDisplayMode] = useState(() => getDisplayMode());
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -73,18 +83,27 @@ export const PwaUpdateNotice = () => {
   }, []);
 
   useEffect(() => {
-    if (consumePwaUpdateReloadPending()) {
-      setNotice({ id: Date.now(), kind: "updated" });
+    if (!displayMode.visible) {
+      return;
+    }
+
+    const buildLabel = __EDGEEVER_BUILD_LABEL__;
+
+    if (
+      consumePwaUpdateReloadPending() ||
+      consumePwaBuildUpdate(__EDGEEVER_BUILD_ID__, { notifyWhenMissingBaseline: true })
+    ) {
+      setNotice({ buildLabel, id: Date.now(), kind: "updated" });
     }
 
     const handleNotice = (event: Event) => {
-      const { kind } = (event as PwaUpdateNoticeEvent).detail;
-      setNotice({ id: Date.now(), kind });
+      const { buildLabel: eventBuildLabel, kind } = (event as PwaUpdateNoticeEvent).detail;
+      setNotice({ buildLabel: eventBuildLabel ?? buildLabel, id: Date.now(), kind });
     };
 
     window.addEventListener(PWA_UPDATE_NOTICE_EVENT, handleNotice);
     return () => window.removeEventListener(PWA_UPDATE_NOTICE_EVENT, handleNotice);
-  }, []);
+  }, [displayMode.visible]);
 
   useEffect(() => {
     if (!notice) {
@@ -126,7 +145,7 @@ export const PwaUpdateNotice = () => {
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold leading-5">{copy.title}</div>
-          <div className="mt-0.5 text-xs leading-5 text-slate-500">{copy.description}</div>
+          <div className="mt-0.5 text-xs leading-5 text-slate-500">{getNoticeDescription(notice, copy.description)}</div>
           {isReloadRequired ? (
             <Button className="mt-2" size="sm" variant="solid" onClick={() => window.location.reload()}>
               立即刷新
