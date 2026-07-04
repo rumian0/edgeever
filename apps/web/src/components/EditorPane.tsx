@@ -463,8 +463,10 @@ export const EditorPane = ({
   const [mobileImeDebugEvents, setMobileImeDebugEvents] = useState<MobileImeDebugEntry[]>([]);
   const notebookOptions = useMemo(() => getNotebookMoveOptions(notebooks), [notebooks]);
   const readOnly = isTrashView || Boolean(memo?.isDeleted);
-  const effectiveReadOnly = readOnly || (isMobileViewport && !isMobileEditing);
-  const useMobilePlainTextEditor = isMobileViewport && isMobileEditing && !readOnly;
+  const mobileDefaultEditRequested = Boolean(memo?.id && memo.id === mobileDefaultEditMemoId && !readOnly);
+  const mobileEditingActive = isMobileEditing || mobileDefaultEditRequested;
+  const effectiveReadOnly = readOnly || (isMobileViewport && !mobileEditingActive);
+  const useMobilePlainTextEditor = isMobileViewport && mobileEditingActive && !readOnly;
 
   const memoRef = useRef<MemoDetail | null>(memo);
   const editorRef = useRef<Editor | null>(null);
@@ -1349,7 +1351,8 @@ export const EditorPane = ({
   const mobileImeDebugLogText = [
     `memoId=${memo.id}`,
     `mobile=${isMobileViewport}`,
-    `editing=${isMobileEditing}`,
+    `editingState=${isMobileEditing}`,
+    `editingActive=${mobileEditingActive}`,
     `plainTextEditor=${useMobilePlainTextEditor}`,
     `textareaFocused=${mobileImeDebugTextareaFocused}`,
     `activeElement=${mobileImeDebugActiveElement}`,
@@ -1515,7 +1518,7 @@ export const EditorPane = ({
             <span className={cn("inline-flex max-w-[5.5rem] truncate rounded-full px-2 py-1 text-[11px] font-medium sm:hidden", mobileStatusClassName)}>
               {mobileStatusLabel}
             </span>
-            {isMobileEditing && !readOnly && (
+            {mobileEditingActive && !readOnly && (
               <button
                 className="inline-flex h-8 items-center justify-center rounded-full bg-slate-950 px-3 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-500 sm:hidden"
                 type="button"
@@ -1536,7 +1539,7 @@ export const EditorPane = ({
                 insertResourceFiles(files);
               }}
             />
-            {isMobileEditing && !readOnly && !useMobilePlainTextEditor && (
+            {mobileEditingActive && !readOnly && !useMobilePlainTextEditor && (
               <Button
                 className="sm:hidden"
                 size="icon"
@@ -1549,7 +1552,7 @@ export const EditorPane = ({
                 <Paperclip className="h-4 w-4" />
               </Button>
             )}
-            {isMobileEditing && !readOnly && (
+            {mobileEditingActive && !readOnly && (
               <Button
                 className="sm:hidden"
                 size="icon"
@@ -1586,7 +1589,7 @@ export const EditorPane = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  className={cn(!isMobileEditing && !readOnly && "hidden sm:inline-flex")}
+                  className={cn(!mobileEditingActive && !readOnly && "hidden sm:inline-flex")}
                   size="icon"
                   variant="ghost"
                   title="更多"
@@ -1863,7 +1866,7 @@ export const EditorPane = ({
             <div className="mt-2 max-h-40 overflow-auto rounded border border-amber-200 bg-white/80 p-2 font-mono leading-5">
               <div>active: {mobileImeDebugActiveElement}</div>
               <div>textareaFocused: {String(mobileImeDebugTextareaFocused)}</div>
-              <div>mode: mobile={String(isMobileViewport)} editing={String(isMobileEditing)} plain={String(useMobilePlainTextEditor)}</div>
+              <div>mode: mobile={String(isMobileViewport)} editingState={String(isMobileEditing)} editingActive={String(mobileEditingActive)} plain={String(useMobilePlainTextEditor)}</div>
               <div>save: {saveState} dirty={String(hasUnsavedChanges)}</div>
               <div className="mt-1 border-t border-amber-100 pt-1">
                 {mobileImeDebugEvents.length === 0 ? (
@@ -1884,7 +1887,7 @@ export const EditorPane = ({
         </div>
       )}
 
-      {isMobileViewport && !isMobileEditing && !readOnly && (
+      {isMobileViewport && !mobileEditingActive && !readOnly && (
         <Button
           className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-30 h-12 w-12 rounded-full shadow-lg sm:hidden"
           size="icon"
