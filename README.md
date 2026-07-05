@@ -101,7 +101,7 @@ bun run deploy
 
 ## 功能
 
-- 个人使用几乎可以零成本托管：基于 Cloudflare D1 + R2 免费额度，短笔记可达 10 万条量级，200KB 图片约可存放 5 万张。
+- 个人使用几乎可以零成本托管：基于 Cloudflare D1 + R2 免费额度，短笔记可达 15 万条，200KB 图片约可存放 5 万张。
 - 数据完全开放：笔记内容存放在基于标准 SQLite 的 Cloudflare D1 中，可通过 REST API、MCP 和 CLI 按需读取、迁移或导出，不用担心被单一笔记产品绑定。
 - AI Agent 友好：原生支持 MCP，可让 Codex、Claude Code、Antigravity 等工具读取、整理和维护笔记。
 - 同时适配 PC 与移动端，支持网页访问与 PWA 安装，桌面管理和手机随手记录都顺手。
