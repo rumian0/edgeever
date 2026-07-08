@@ -36,6 +36,7 @@ import {
   Search,
   Settings,
   ShieldCheck,
+  Sparkles,
   Tag,
   Trash2,
   Upload,
@@ -121,6 +122,26 @@ const ALL_TOKEN_SCOPES = [
   "read:tags",
   "write:tags",
 ];
+const ADVANCED_PROMPTS = [
+  {
+    id: "persona",
+    title: "人物画像",
+    prompt:
+      "请通过 EdgeEver MCP 读取我的笔记，基于真实笔记内容为我整理一份人物画像。请只根据笔记中的证据判断，不要做心理诊断，不要夸张定性。输出包括：长期关注的主题、做事偏好、能力线索、反复出现的问题、近期动向，并在每条结论后列出相关笔记标题或 memo id。",
+  },
+  {
+    id: "knowledgeMap",
+    title: "知识图谱",
+    prompt:
+      "请通过 EdgeEver MCP 读取我的笔记，为我整理一份知识地图。请找出主要知识领域、每个领域下的关键概念、相关笔记、我已经掌握的部分和还需要补齐的问题。输出结构要适合后续继续学习和写作。",
+  },
+  {
+    id: "tagAdvice",
+    title: "标签建议",
+    prompt:
+      "请通过 EdgeEver MCP 读取我的笔记和现有标签，帮我设计一套更清晰的标签体系。请指出重复、过细、过宽或命名不一致的标签，并给出合并、重命名和新增标签建议。先不要修改笔记，等我确认后再执行。",
+  },
+];
 
 type MobileView = "notes" | "search" | "account" | "settings";
 type MemoView = "notebook" | "trash";
@@ -160,6 +181,7 @@ export const WorkspaceScreen = () => {
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [apiTokensOpen, setApiTokensOpen] = useState(false);
   const [evernoteGuideOpen, setEvernoteGuideOpen] = useState(false);
+  const [advancedPlayOpen, setAdvancedPlayOpen] = useState(false);
   const [systemInfoOpen, setSystemInfoOpen] = useState(false);
   const [revisionMemo, setRevisionMemo] = useState<MemoDetail | null>(null);
   const [selectedMemoIds, setSelectedMemoIds] = useState<Set<string>>(() => new Set());
@@ -563,6 +585,7 @@ export const WorkspaceScreen = () => {
         <SettingsView
           notebookCount={notebooks.length}
           memoCount={memoCount}
+          onOpenAdvancedPlay={() => setAdvancedPlayOpen(true)}
           onOpenApiTokens={() => setApiTokensOpen(true)}
           onOpenEvernoteGuide={() => setEvernoteGuideOpen(true)}
           onOpenNotebookManager={() => setNotebookManagerOpen(true)}
@@ -614,6 +637,7 @@ export const WorkspaceScreen = () => {
       <ResourcesModal activeMemo={selectedMemo} onClose={() => setResourcesOpen(false)} visible={resourcesOpen} />
       <ApiTokensModal baseUrl={session?.baseUrl ?? ""} onClose={() => setApiTokensOpen(false)} visible={apiTokensOpen} />
       <EvernoteGuideModal onClose={() => setEvernoteGuideOpen(false)} visible={evernoteGuideOpen} />
+      <AdvancedPlayModal onClose={() => setAdvancedPlayOpen(false)} visible={advancedPlayOpen} />
       <SystemInfoModal baseUrl={session?.baseUrl ?? ""} memoCount={memoCount} notebookCount={notebooks.length} onClose={() => setSystemInfoOpen(false)} visible={systemInfoOpen} />
       <RevisionHistoryModal
         memo={revisionMemo}
@@ -937,6 +961,7 @@ const SettingsView = ({
   isSyncingQueue,
   memoCount,
   notebookCount,
+  onOpenAdvancedPlay,
   onOpenApiTokens,
   onOpenEvernoteGuide,
   onOpenNotebookManager,
@@ -951,6 +976,7 @@ const SettingsView = ({
   isSyncingQueue: boolean;
   memoCount: number;
   notebookCount: number;
+  onOpenAdvancedPlay: () => void;
   onOpenApiTokens: () => void;
   onOpenEvernoteGuide: () => void;
   onOpenNotebookManager: () => void;
@@ -981,6 +1007,9 @@ const SettingsView = ({
     </Pressable>
     <Pressable onPress={onOpenEvernoteGuide}>
       <PanelRow label="Evernote 导入指引" value="MCP 迁移流程与 Prompt" />
+    </Pressable>
+    <Pressable onPress={onOpenAdvancedPlay}>
+      <PanelRow label="进阶玩法" value="人物画像、知识图谱、标签建议 Prompt" />
     </Pressable>
     <Pressable onPress={onOpenSystemInfo}>
       <PanelRow label="系统信息" value="版本、平台、实例、统计" />
@@ -1862,6 +1891,52 @@ const EvernoteGuideModal = ({ onClose, visible }: { onClose: () => void; visible
     </SafeAreaView>
   </Modal>
 );
+
+const AdvancedPlayModal = ({ onClose, visible }: { onClose: () => void; visible: boolean }) => {
+  const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
+
+  const copyPrompt = async (promptId: string, prompt: string) => {
+    await Clipboard.setStringAsync(prompt);
+    setCopiedPromptId(promptId);
+    setTimeout(() => setCopiedPromptId((current) => (current === promptId ? null : current)), 1600);
+  };
+
+  return (
+    <Modal animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet" visible={visible}>
+      <SafeAreaView style={styles.modalSafeArea}>
+        <View style={styles.modalHeader}>
+          <IconButton onPress={onClose}>
+            <X color="#0f172a" size={20} />
+          </IconButton>
+          <Text style={styles.modalTitle}>进阶玩法</Text>
+          <View style={styles.iconButtonPlaceholder} />
+        </View>
+
+        <ScrollView contentContainerStyle={styles.editorForm}>
+          <View style={styles.guideHero}>
+            <Sparkles color="#047857" size={24} />
+            <Text style={styles.panelValue}>搭配 AI Agent 的进阶工作流</Text>
+            <Text style={styles.panelLabel}>复制 Prompt 后，配合 EdgeEver MCP 让 AI 读取真实笔记并输出结构化结果。</Text>
+          </View>
+
+          {ADVANCED_PROMPTS.map((item) => (
+            <View key={item.id} style={styles.promptCard}>
+              <View style={styles.promptCardHeader}>
+                <Text style={styles.panelValue}>{item.title}</Text>
+                <ActionButton label={copiedPromptId === item.id ? "已复制" : "复制"} onPress={() => copyPrompt(item.id, item.prompt)}>
+                  {copiedPromptId === item.id ? <ShieldCheck color="#047857" size={16} /> : <Copy color="#0f172a" size={16} />}
+                </ActionButton>
+              </View>
+              <Text selectable style={styles.revisionPreviewText}>
+                {item.prompt}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </Modal>
+  );
+};
 
 const GuideStep = ({ body, title }: { body: string; title: string }) => (
   <View style={styles.guideStep}>
@@ -4069,6 +4144,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 6,
     padding: 14,
+  },
+  promptCard: {
+    backgroundColor: "#ffffff",
+    borderColor: "#e2e8f0",
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: 10,
+    padding: 14,
+  },
+  promptCardHeader: {
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    justifyContent: "space-between",
   },
   templateCard: {
     alignItems: "center",
