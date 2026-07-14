@@ -19,7 +19,7 @@ EdgeEver fills that gap: familiar notes interaction, open data, API access, MCP 
 
 - Demo: [https://demo.edgeever.org](https://demo.edgeever.org)
 
-The public demo resets daily and restores sample notes. Do not store private content there.
+The public demo resets every Monday at 1:00 AM (China Standard Time) and restores sample notes. Do not store private content there.
 
 ## Deployment
 
