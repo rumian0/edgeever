@@ -636,18 +636,5 @@ export const enUS = {
       step2: "Find and select 'Add to Home Screen' in the menu",
       dismiss: "Got it",
     },
-    settingsCard: {
-      title: "Client & Multi-platform",
-      description: "Install EdgeEver as a standalone desktop app or mobile App to get a more immersive window experience and offline access.",
-      installedTitle: "Installed successfully as an app",
-      installedDesc: "You are running EdgeEver in stand-alone client mode, enjoying a cleaner workspace and superior speed.",
-      installableDesc: "Detected that your browser supports one-click installation. Click the button below to add EdgeEver to your desktop or application list.",
-      installBtn: "Install EdgeEver Client",
-      iosGuideTitle: "iOS (Safari) Installation Guide",
-      iosGuideDesc: "iOS security policies do not allow one-click web installation. You can add it manually using these steps:",
-      unsupportedDesc: "How to install as a client? You can open this site in browsers like Chrome, Safari, Edge:",
-      unsupportedStep1: "On Desktop: Click the 'Install' icon on the right side of the address bar (usually a screen with a down arrow).",
-      unsupportedStep2: "On Mobile: Select 'Add to Home Screen' or 'Install App' in the browser menu.",
-    },
   },
 } as const;

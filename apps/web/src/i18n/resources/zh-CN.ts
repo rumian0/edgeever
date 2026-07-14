@@ -636,18 +636,5 @@ export const zhCN = {
       step2: "在菜单中找到并选择「添加到主屏幕」",
       dismiss: "我知道了",
     },
-    settingsCard: {
-      title: "客户端与多端使用",
-      description: "将 EdgeEver 安装为独立的桌面应用或手机 App，获得更沉浸的无边框体验并支持离线访问。",
-      installedTitle: "已成功作为应用安装",
-      installedDesc: "您正在以独立客户端模式运行 EdgeEver，享有更纯净的编辑视窗与优异的响应速度。",
-      installableDesc: "检测到您的浏览器支持一键安装。点击下方按钮即可将 EdgeEver 添加到您的桌面或应用程序列表。",
-      installBtn: "安装 EdgeEver 客户端",
-      iosGuideTitle: "iOS (Safari) 安装指南",
-      iosGuideDesc: "iOS 系统的安全机制不允许在网页内一键安装，您可以通过以下方式将其添加到您的桌面：",
-      unsupportedDesc: "如何安装为客户端？您可以使用 Chrome、Safari、Edge 等主流浏览器打开本站：",
-      unsupportedStep1: "在电脑端：点击浏览器地址栏右侧的「安装」图标（通常是一个屏幕加向下箭头）。",
-      unsupportedStep2: "在手机端：在浏览器菜单中选择「添加到主屏幕」或「安装应用」。",
-    },
   },
 } as const;
