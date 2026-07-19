@@ -21,6 +21,42 @@ The APK is uploaded as a GitHub Actions artifact named `edgeever-android-debug-a
 
 ## Release Builds
 
+### Recommended local Play build
+
+Routine Google Play bundles should be built on the release Mac instead of in
+GitHub Actions. Keep the upload keystore and signing environment outside the
+repository:
+
+```sh
+mkdir -p "$HOME/.config/edgeever/android"
+cp .env.android.local.example "$HOME/.config/edgeever/android/signing.env"
+chmod 600 "$HOME/.config/edgeever/android/signing.env"
+```
+
+Fill in the existing upload key's absolute path and credentials. Android
+keystore formats and local environment files are ignored by Git.
+
+```sh
+bun run build:android:play:local
+```
+
+This produces:
+
+```text
+apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+apps/mobile/android/app/build/outputs/mapping/release/mapping.txt
+```
+
+The command builds all Play-supported Android architectures by default,
+verifies the AAB signature, and requires a non-empty R8 mapping file. Keep an
+encrypted backup of `signing.env` and the upload keystore outside the
+repository. Do not replace or regenerate the upload key for an existing Play
+app unless the key reset has been completed in Play Console.
+
+Set `EDGE_EVER_ANDROID_ENV_FILE` to use a different secure environment file.
+
+### GitHub Actions fallback
+
 Run the workflow manually to build a signed Android App Bundle. The workflow
 uses the following GitHub Actions secrets:
 
