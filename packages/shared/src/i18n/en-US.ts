@@ -763,4 +763,14 @@ export const enUS = {
       dismiss: "Got it",
     },
   },
+  demo: {
+    resetTitle: "Restore Demo Memos",
+    resetDescription: "Restores sample notes and notebooks in the demo environment to their initial state. Any edits or changes made will be reset.",
+    resetConfirm: "Confirm Restore",
+    resetButton: "Restore Demo Notes",
+    resetTooltip: "Reset sample notes and notebooks in the demo environment",
+    resetSuccess: "Sample notes successfully restored!",
+    resetFailed: "Failed to restore sample notes. Please try again later.",
+    resetting: "Restoring...",
+  },
 } as const;

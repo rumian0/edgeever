@@ -661,6 +661,32 @@ export const WorkspaceApp = ({
   const [notebookNameDialog, setNotebookNameDialog] = useState<NotebookNameDialogState | null>(null);
   const [notebookDeleteConfirmation, setNotebookDeleteConfirmation] = useState<Notebook | null>(null);
   const [appNoticeDialog, setAppNoticeDialog] = useState<AppNoticeDialogState | null>(null);
+  const [demoResetConfirmationOpen, setDemoResetConfirmationOpen] = useState(false);
+
+  const resetDemoMutation = useMutation({
+    mutationFn: () => api.resetDemo(),
+    onSuccess: () => {
+      setDemoResetConfirmationOpen(false);
+      void Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["memos"] }),
+        queryClient.invalidateQueries({ queryKey: ["memo"] }),
+        queryClient.invalidateQueries({ queryKey: ["notebooks"] }),
+        queryClient.invalidateQueries({ queryKey: ["resources"] }),
+        queryClient.invalidateQueries({ queryKey: ["tags"] }),
+      ]);
+      setAppNoticeDialog({
+        title: t("demo.resetSuccess"),
+        description: t("demo.resetSuccess"),
+      });
+    },
+    onError: () => {
+      setDemoResetConfirmationOpen(false);
+      setAppNoticeDialog({
+        title: t("demo.resetFailed"),
+        description: t("demo.resetFailed"),
+      });
+    },
+  });
   const [multiSelectKeyDown, setMultiSelectKeyDown] = useState(false);
   const [imageCompressionEnabled, setImageCompressionEnabled] = useState(readImageCompressionPreference);
   const [desktopFocusMode, setDesktopFocusMode] = useState(readDesktopFocusModePreference);
@@ -2423,6 +2449,9 @@ export const WorkspaceApp = ({
                     setActivePane("memos");
                   }}
                   onEmptyTrash={handleEmptyTrash}
+                  demoMode={demoMode}
+                  onResetDemo={() => setDemoResetConfirmationOpen(true)}
+                  isResettingDemo={resetDemoMutation.isPending}
                 />
               </Suspense>
             )}
@@ -2717,6 +2746,18 @@ export const WorkspaceApp = ({
           tone="neutral"
           onCancel={() => setAppNoticeDialog(null)}
           onConfirm={() => setAppNoticeDialog(null)}
+        />
+      )}
+      {demoResetConfirmationOpen && (
+        <AppConfirmDialog
+          title={t("demo.resetTitle")}
+          description={t("demo.resetDescription")}
+          confirmLabel={t("demo.resetConfirm")}
+          cancelLabel={t("common.cancel")}
+          isWorking={resetDemoMutation.isPending}
+          tone="primary"
+          onCancel={() => setDemoResetConfirmationOpen(false)}
+          onConfirm={() => resetDemoMutation.mutate()}
         />
       )}
       {visibleActivePane !== "editor" && !memoSelectionModeActive && (
