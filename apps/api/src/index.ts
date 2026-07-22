@@ -2226,6 +2226,26 @@ app.get("/api/v1/resources/:id/blob", async (c) => {
   return new Response(object.body, { headers });
 });
 
+app.post("/api/v1/demo/reset", async (c) => {
+  if (!isDemoMode(c.env) && !isLocalDemoSeedEnabled(c.env)) {
+    return c.json(
+      {
+        error: {
+          code: "demo_mode_disabled",
+          message: "Demo reset is only available when demo mode or local demo seed is enabled",
+        },
+      },
+      400
+    );
+  }
+
+  await resetDemoData(c.env, Date.now());
+  return c.json({
+    success: true,
+    message: "Demo seed data successfully restored",
+  });
+});
+
 app.patch("/api/v1/memos/:id", zValidator("json", MemoUpdateSchema), async (c) => {
   const denied = requireScopes(c, "write:memos");
 

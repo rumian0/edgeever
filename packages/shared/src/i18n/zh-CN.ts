@@ -757,4 +757,14 @@ export const zhCN = {
       dismiss: "我知道了",
     },
   },
+  demo: {
+    resetTitle: "还原示例笔记",
+    resetDescription: "将 Demo 环境的示例笔记和笔记本恢复为初始状态。期间对示例笔记所做的任何编辑或修改都会被清空并还原。",
+    resetConfirm: "确认还原",
+    resetButton: "还原示例笔记",
+    resetTooltip: "重置演示环境中的示例笔记与笔记本",
+    resetSuccess: "示例笔记已成功还原！",
+    resetFailed: "还原示例笔记失败，请稍后重试。",
+    resetting: "正在还原...",
+  },
 } as const;
